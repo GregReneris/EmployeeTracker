@@ -180,9 +180,7 @@ async function employeeAdd() {
             managers.push("No Manager");
             managerIdByName["No Manager"] = 0;
         });
-
-     
-     
+ 
     await inquirer.prompt([
         {
             name: "firstname",
