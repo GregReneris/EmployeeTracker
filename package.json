@@ -1,0 +1,24 @@
+{
+  "name": "EmployeeTracker",
+  "version": "1.0.0",
+  "description": "A command line application that helps manage employees and departments",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GregReneris/EmployeeTracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GregReneris/EmployeeTracker/issues"
+  },
+  "homepage": "https://github.com/GregReneris/EmployeeTracker#readme",
+  "dependencies": {
+    "inquirer": "^7.0.3",
+    "mysql": "^2.17.1"
+  }
+}
