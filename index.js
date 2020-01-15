@@ -159,7 +159,7 @@ function departmentAdd() {
         name: "addition",
         message: "which department are we adding?"
     }).then(function (additionAnswers) {
-        console.log('get department add function');
+        //console.log('get department add function');
         connection.query(
             'INSERT INTO department_table SET ?', 
             {
@@ -167,7 +167,7 @@ function departmentAdd() {
             },
             function (err, data) {
                 if (err) throw err;
-                console.table(data);
+                console.log("department added");
                 begin();
             }
         );
@@ -179,7 +179,6 @@ async function employeeAdd() {
     employeeRoleByTitle = {}
     managers= []
     managerIdByName = {}
-    departments= []
 
     await connection.asyncQuery('SELECT * FROM workrole_table')
         .then( data => {
@@ -223,12 +222,6 @@ async function employeeAdd() {
             type: "list",
             choices: managers,
             message: "Select employee's manager",
-        },
-        {
-            name: "role",
-            type: "list",
-            choices: departments,
-            message: "Choose the Employee's department",
         }
 
     ])
@@ -244,25 +237,31 @@ async function employeeAdd() {
             },
             function (err, data) {
                 if (err) throw err;
-                console.table(data);
+                console.log("employee added");
                 begin();
             }
         );
     });
 }
 
-
-
-// still needs work.
+//https://www.mysqltutorial.org/basic-mysql-tutorial-aspx/mysql-self-join/ for how this works.
 function viewEmployees(){
 connection.query(
-    "SELECT employee_table.first_name, employee_table.last_name, workrole_table.title, workrole_table.salary FROM employee_table INNER JOIN workrole_table ON employee_table.role_id = workrole_table.id",
+    `SELECT 
+        CONCAT(e.first_name," ",e.last_name) AS Name,
+        r.title AS Role, 
+        r.salary AS Salary,
+        d.name AS Department,
+        CONCAT(m.first_name," ",m.last_name) AS Manager
+    FROM employee_table e 
+    LEFT OUTER JOIN workrole_table r ON e.role_id = r.id
+    INNER JOIN department_table d ON r.department_id = d.id
+    LEFT OUTER JOIN employee_table m ON e.manager_id = m.id
+    ORDER BY Name`,
     function (err, data) {
         if (err) throw err;
         console.table(data);
         begin();
-    
-     
     })
 };
 
@@ -290,19 +289,54 @@ function viewRole(){
 }
 
 
+async function addRole() {
+    departments=[]
+    departmentIdByName = {}
+    
+    await connection.asyncQuery('SELECT * FROM department_table ORDER BY name')
+        .then( data => {
+            data.forEach(d=>{
+                departments.push(d.name);
+                departmentIdByName[d.name] = d.id;
+            });
+        });
 
+    
+    await inquirer.prompt([
+        { 
+           type: "input",
+           name: "rolename",
+           message: "what role are we adding?"
+        },
+        {
+            name: "salary",
+            type: "input",
+            message: "Enter salary for role",
+        },
+        {
+            name: "depo",
+            type: "list",
+            message: "What department is the role in?",
+            choices: departments,
 
-
-
-        // adding departments array
-        // await connection.asyncQuery('SELECT * FROM department_table')
-        // .then( data => {
-        //     data.forEach(depo=>{
-        //         departments.push(depo.name);
-        //         departments[depo.name] = department.name;
-        //     });
-        // });
-        // finished adding departments array
+        },
+    ]).then(function (additionAnswers) {
+        console.log('get department add function');
+        connection.query(
+            'INSERT INTO workrole_table SET ?', 
+            {
+                title: additionAnswers.rolename,
+                salary: additionAnswers.salary,
+                department_id: departmentIdByName[ additionAnswers.depo ]
+            },
+            function (err, data) {
+                if (err) throw err;
+                console.log(`added ${additionAnswers.rolename}`);
+                begin();
+            }
+        );
+    })
+}
 
 
 
