@@ -40,17 +40,16 @@ function begin() {
         type: "list",
         message: "What would you like to do?",
         choices: [
+          "View All Employees",
           "Find Employee",
           "Add Employee",
-          "Find Roles",
-          "Add a Role",
-          "Add Role",
+          "Update Employee Role",
+          "View Departments",
           "Find Department",
           "Add Department",
-          "View All Employees",
-          "Update Employee Role",
           "View all Roles",
-          "View Departments",
+          "Find Roles",
+          "Add a Role",
           "Exit"
         ]
       })
@@ -95,6 +94,10 @@ function begin() {
             
         case "View all Roles":
             viewRole();
+            break;
+
+        case "Exit":
+            connection.end();
             break;
         
           default:
@@ -338,43 +341,63 @@ async function addRole() {
     })
 }
 
+async function  updateEmployeeRole() {
+    employees = []
+    workroles = []
+    employeeIdByName = {}
+    roleIdByTitle = {}
+
+    await connection.asyncQuery('SELECT * FROM workrole_table')
+        .then( data => {
+            data.forEach(role=>{
+                workroles.push(role.title);
+                roleIdByTitle[role.title] = role.id;
+            });
+        });
 
 
+    await connection.asyncQuery('SELECT * FROM employee_table')
+        .then( data => {
+            data.forEach(employee=>{
+                employeename = employee.first_name + " " + employee.last_name;
+                employees.push(employeename);
+                employeeIdByName [employeename] = employee.id;
+            });
+        });
 
+        // console.table(employeeIdByName);
+        // console.table(roleIdByTitle);
+        // console.log(workroles)
+    await inquirer.prompt([
+        { 
+            type: "list",
+            name: "employee",
+            message: "Select employee",
+            choices: employees
+        },
+        {
+            name: "newrole",
+            type: "list",
+            message: "Select new role",
+            choices: workroles
+        },
+    ]).then(function (anws) {
+        connection.query(
+            'UPDATE employee_table SET ? WHERE ?', 
+            [
+                {
+                    role_id: roleIdByTitle[anws.newrole]
+                },
+                {
+                    id: employeeIdByName[anws.employee]
+                }
+            ],
+            function (err, data) {
+                if (err) throw err;
+                console.log(`updated ${anws.employee} role`);
+                begin();
+            }
+        );
+    })
 
-    // function  updateEmployeeRole() {
-    //     console.log ("update employee role function");
-    //     var query =connection.query(
-    //         "UPDATE role_id SET ? WHERE ?"
-    //         {
-    //             role
-    //         }
-        
-        
-        
-        
-    //         )
-        
-
-    // };
-
-
-    // function updateSong(){
-    //     console.log("Updating the song...\n");
-    //     var query = connection.query(
-    //       "UPDATE songs SET ? WHERE ?",
-    //       [
-    //         {
-    //           artist : "The Beatles"
-    //         }, 
-    //         {
-    //           genre : "All Time Best Rock"
-    //         }
-    //       ], function (err,data){
-    //         if (err) throw err;
-    //         deleteSong();
-    //       }
-      
-    //     );
-    //     console.log(query.sql);
-    //   }
+};
