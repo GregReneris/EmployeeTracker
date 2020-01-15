@@ -49,6 +49,8 @@ function begin() {
           "Add Department",
           "View All Employees",
           "Update Employee Role",
+          "View all Roles",
+          "View Departments",
           "Exit"
         ]
       })
@@ -66,6 +68,11 @@ function begin() {
           departmentSearch();
           break;
     
+        case "View Departments":
+        viewDepartment();
+        break;  
+
+
         case "Add Department":
           departmentAdd();
           break;    
@@ -84,6 +91,10 @@ function begin() {
         
           case "Add a Role":
             addRole();
+            break;
+            
+        case "View all Roles":
+            viewRole();
             break;
         
           default:
@@ -255,11 +266,28 @@ connection.query(
     })
 };
 
+function viewDepartment (){
+    connection.query(
+        "SELECT name FROM department_table ORDER BY name",
+            function (err, data) {
+                if (err) throw err;
+                console.table(data);
+                begin();
+        })
+};
 
 
-
-
-
+function viewRole(){
+    connection.query(
+        "SELECT workrole_table.title, workrole_table.salary, department_table.name FROM workrole_table INNER JOIN department_table ON workrole_table.department_id = department_table.id ORDER BY title",
+        // "SELECT * FROM workrole_table",
+        function (err, data) {
+            if (err) throw err;
+            console.table(data);
+            begin();
+    
+        })
+}
 
 
 
