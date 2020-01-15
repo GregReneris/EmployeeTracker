@@ -43,9 +43,11 @@ function begin() {
           "Find Employee",
           "Add Employee",
           "Find Roles",
+          "Add a Role",
           "Add Role",
           "Find Department",
           "Add Department",
+          "View All Employees",
           "Update Employee Role",
           "Exit"
         ]
@@ -72,12 +74,17 @@ function begin() {
           employeeAdd();
           break;
         
+        case "Update Employee Role":
+          updateEmployeeRole();
+          break;
         
+          case "View All Employees":
+          viewEmployees();
+          break;
         
-        
-        
-        
-        
+          case "Add a Role":
+            addRole();
+            break;
         
           default:
           console.log("Option not found");
@@ -161,6 +168,7 @@ async function employeeAdd() {
     employeeRoleByTitle = {}
     managers= []
     managerIdByName = {}
+    departments= []
 
     await connection.asyncQuery('SELECT * FROM workrole_table')
         .then( data => {
@@ -170,6 +178,7 @@ async function employeeAdd() {
             });
         });
 
+
     await connection.asyncQuery('SELECT * FROM employee_table')
         .then( data => {
             data.forEach(employee=>{
@@ -178,7 +187,7 @@ async function employeeAdd() {
                 managerIdByName [employeename] = employee.id;
             });
             managers.push("No Manager");
-            managerIdByName["No Manager"] = 0;
+            managerIdByName["No Manager"] = null;
         });
  
     await inquirer.prompt([
@@ -190,7 +199,7 @@ async function employeeAdd() {
         {
             name: "lastname",
             type: "input",
-            message: "Enter employee's last name: ",
+            message: "Enter employee's last name",
         },
         {
             name: "role",
@@ -203,6 +212,12 @@ async function employeeAdd() {
             type: "list",
             choices: managers,
             message: "Select employee's manager",
+        },
+        {
+            name: "role",
+            type: "list",
+            choices: departments,
+            message: "Choose the Employee's department",
         }
 
     ])
@@ -225,3 +240,79 @@ async function employeeAdd() {
     });
 }
 
+
+
+// still needs work.
+function viewEmployees(){
+connection.query(
+    "SELECT employee_table.first_name, employee_table.last_name, workrole_table.title, workrole_table.salary FROM employee_table INNER JOIN workrole_table ON employee_table.role_id = workrole_table.id",
+    function (err, data) {
+        if (err) throw err;
+        console.table(data);
+        begin();
+    
+     
+    })
+};
+
+
+
+
+
+
+
+
+
+
+
+
+        // adding departments array
+        // await connection.asyncQuery('SELECT * FROM department_table')
+        // .then( data => {
+        //     data.forEach(depo=>{
+        //         departments.push(depo.name);
+        //         departments[depo.name] = department.name;
+        //     });
+        // });
+        // finished adding departments array
+
+
+
+
+
+    // function  updateEmployeeRole() {
+    //     console.log ("update employee role function");
+    //     var query =connection.query(
+    //         "UPDATE role_id SET ? WHERE ?"
+    //         {
+    //             role
+    //         }
+        
+        
+        
+        
+    //         )
+        
+
+    // };
+
+
+    // function updateSong(){
+    //     console.log("Updating the song...\n");
+    //     var query = connection.query(
+    //       "UPDATE songs SET ? WHERE ?",
+    //       [
+    //         {
+    //           artist : "The Beatles"
+    //         }, 
+    //         {
+    //           genre : "All Time Best Rock"
+    //         }
+    //       ], function (err,data){
+    //         if (err) throw err;
+    //         deleteSong();
+    //       }
+      
+    //     );
+    //     console.log(query.sql);
+    //   }
